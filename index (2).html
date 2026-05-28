@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TGK Plugin</title>
+
+  <style>
+    :root {
+      --bg: #070a12;
+      --bg2: #0d1324;
+      --card: rgba(255, 255, 255, 0.07);
+      --border: rgba(255, 255, 255, 0.13);
+      --text: #f5f7ff;
+      --muted: #aeb8d6;
+      --blue: #4ea8ff;
+      --purple: #8f5cff;
+      --green: #38ef7d;
+      --danger: #ff4e7a;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(78, 168, 255, 0.2), transparent 35%),
+        radial-gradient(circle at top right, rgba(143, 92, 255, 0.25), transparent 35%),
+        linear-gradient(135deg, var(--bg), var(--bg2));
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1150px, 92%);
+      margin: auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      background: rgba(7, 10, 18, 0.75);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      box-shadow: 0 0 30px rgba(78, 168, 255, 0.4);
+      font-weight: 900;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-btn {
+      padding: 11px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      color: white;
+      font-weight: 700;
+      box-shadow: 0 8px 30px rgba(78, 168, 255, 0.25);
+    }
+
+    .hero {
+      min-height: calc(100vh - 76px);
+      display: grid;
+      align-items: center;
+      padding: 80px 0;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 50px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 15px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .pulse {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 18px var(--green);
+    }
+
+    h1 {
+      font-size: clamp(3rem, 7vw, 6rem);
+      line-height: 0.95;
+      letter-spacing: -3px;
+      margin-bottom: 24px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--blue), var(--purple), var(--green));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      line-height: 1.8;
+      color: var(--muted);
+      max-width: 650px;
+      margin-bottom: 34px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px 22px;
+      border-radius: 16px;
+      font-weight: 800;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      color: white;
+      box-shadow: 0 15px 35px rgba(78, 168, 255, 0.25);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+    }
+
+    .plugin-card {
+      position: relative;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .plugin-card::before {
+      content: "";
+      position: absolute;
+      inset: -120px;
+      background: conic-gradient(from 180deg, transparent, rgba(78,168,255,0.28), transparent, rgba(143,92,255,0.25), transparent);
+      animation: spin 8s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .terminal {
+      background: #050711;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .terminal-top {
+      padding: 14px;
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--danger);
+    }
+
+    .dot:nth-child(2) {
+      background: #ffd166;
+    }
+
+    .dot:nth-child(3) {
+      background: var(--green);
+    }
+
+    .terminal-body {
+      padding: 24px;
+      font-family: Consolas, monospace;
+      color: #dfffe8;
+      line-height: 1.8;
+      min-height: 330px;
+    }
+
+    .code-muted {
+      color: #7f8aa8;
+    }
+
+    .code-blue {
+      color: #4ea8ff;
+    }
+
+    .code-green {
+      color: #38ef7d;
+    }
+
+    section {
+      padding: 90px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-title h2 {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      margin-bottom: 14px;
+    }
+
+    .section-title p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 700px;
+      margin: auto;
+      line-height: 1.7;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    .feature {
+      padding: 26px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      font-size: 1.5rem;
+      margin-bottom: 18px;
+    }
+
+    .feature h3 {
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+    }
+
+    .feature p {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .showcase {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .panel {
+      padding: 30px;
+      border-radius: 26px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .panel h3 {
+      font-size: 2rem;
+      margin-bottom: 16px;
+    }
+
+    .panel p {
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .stat {
+      padding: 20px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .stat strong {
+      font-size: 2rem;
+      display: block;
+      color: var(--green);
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 20px;
+    }
+
+    th, td {
+      padding: 18px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    th {
+      color: var(--text);
+      background: rgba(255,255,255,0.08);
+    }
+
+    td {
+      color: var(--muted);
+    }
+
+    .command {
+      color: var(--green);
+      font-family: Consolas, monospace;
+      font-weight: 700;
+    }
+
+    .download-box {
+      text-align: center;
+      padding: 50px;
+      border-radius: 32px;
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(135deg, rgba(78,168,255,0.18), rgba(143,92,255,0.16)),
+        rgba(255,255,255,0.06);
+      box-shadow: var(--shadow);
+    }
+
+    .download-box h2 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      margin-bottom: 16px;
+    }
+
+    .download-box p {
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 650px;
+      margin: 0 auto 28px;
+    }
+
+    footer {
+      padding: 35px 0;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      text-align: center;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .mobile-menu {
+      display: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 850px) {
+      .hero-grid,
+      .showcase {
+        grid-template-columns: 1fr;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links,
+      .nav-btn {
+        display: none;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+
+      h1 {
+        letter-spacing: -1px;
+      }
+
+      .hero {
+        padding: 55px 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav class="container">
+      <a href="#" class="logo">
+        <span class="logo-icon">T</span>
+        <span>TGK Plugin</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#commands">Commands</a>
+        <a href="#download">Download</a>
+      </div>
+
+      <a href="#download" class="nav-btn">Get Plugin</a>
+      <div class="mobile-menu">☰</div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="badge">
+            <span class="pulse"></span>
+            Server-ready plugin system
+          </div>
+
+          <h1>
+            Power your server with
+            <span class="gradient-text">TGK Plugin</span>
+          </h1>
+
+          <p>
+            TGK Plugin is a clean, fast, and configurable plugin system built for server owners
+            who want control, performance, commands, permissions, logging, economy features,
+            and smooth player management.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#download" class="btn btn-primary">Download Now</a>
+            <a href="#commands" class="btn btn-secondary">View Commands</a>
+          </div>
+        </div>
+
+        <div class="plugin-card">
+          <div class="terminal">
+            <div class="terminal-top">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+
+            <div class="terminal-body">
+              <div><span class="code-muted">></span> Loading TGK Plugin...</div>
+              <div><span class="code-green">✔</span> Config loaded</div>
+              <div><span class="code-green">✔</span> Commands registered</div>
+              <div><span class="code-green">✔</span> Permissions synced</div>
+              <div><span class="code-green">✔</span> Player data active</div>
+              <br>
+              <div><span class="code-blue">TGK Plugin</span> is now running.</div>
+              <div><span class="code-muted">Use /tgk help to begin.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <div class="section-title">
+          <h2>Built for serious servers</h2>
+          <p>
+            Everything is designed to be simple to configure, easy to expand, and reliable during active gameplay.
+          </p>
+        </div>
+
+        <div class="features">
+          <div class="feature">
+            <div class="feature-icon">⚙️</div>
+            <h3>Easy Config</h3>
+            <p>Edit your settings, messages, rewards, cooldowns, and server options without rebuilding the plugin.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">🛡️</div>
+            <h3>Permissions</h3>
+            <p>Lock commands behind permissions so staff, VIPs, and players only access what they are allowed to use.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">💰</div>
+            <h3>Economy Ready</h3>
+            <p>Add rewards, balances, shop systems, player payments, and server progression features.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">📜</div>
+            <h3>Command Logging</h3>
+            <p>Track important player and staff commands to help protect your server from abuse.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">🚀</div>
+            <h3>Performance Focused</h3>
+            <p>Lightweight systems keep your server running clean without unnecessary lag or clutter.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">🧩</div>
+            <h3>Expandable</h3>
+            <p>Use TGK Plugin as the base for kits, shops, banks, rewards, staff tools, and custom server systems.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="commands">
+      <div class="container">
+        <div class="section-title">
+          <h2>Example Commands</h2>
+          <p>
+            Customize these commands for your own plugin setup.
+          </p>
+        </div>
+
+        <div class="showcase">
+          <div class="panel">
+            <h3>Control everything from chat</h3>
+            <p>
+              TGK Plugin gives your staff and players clean commands for managing rewards,
+              balances, shops, and server features.
+            </p>
+
+            <div class="stats">
+              <div class="stat">
+                <strong>24/7</strong>
+                <span>Server Ready</span>
+              </div>
+              <div class="stat">
+                <strong>Fast</strong>
+                <span>Lightweight</span>
+              </div>
+              <div class="stat">
+                <strong>100%</strong>
+                <span>Configurable</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <table>
+              <thead>
+                <tr>
+                  <th>Command</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="command">/tgk help</td>
+                  <td>Shows the plugin help menu.</td>
+                </tr>
+                <tr>
+                  <td class="command">/balance</td>
+                  <td>Shows your current balance.</td>
+                </tr>
+                <tr>
+                  <td class="command">/pay &lt;player&gt; &lt;amount&gt;</td>
+                  <td>Pay another player.</td>
+                </tr>
+                <tr>
+                  <td class="command">/reward</td>
+                  <td>Claim a reward.</td>
+                </tr>
+                <tr>
+                  <td class="command">/tgk reload</td>
+                  <td>Reloads the plugin config.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="download">
+      <div class="container">
+        <div class="download-box">
+          <h2>Download TGK Plugin</h2>
+          <p>
+            Drop the plugin into your server, edit the config, restart, and start building your own custom server experience.
+          </p>
+
+          <div class="hero-actions" style="justify-content: center;">
+            <a href="#" class="btn btn-primary" onclick="downloadPlugin()">Download Plugin</a>
+            <a href="#features" class="btn btn-secondary">Read Features</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      © 2026 TGK Plugin. Built for custom servers.
+    </div>
+  </footer>
+
+  <script>
+    function downloadPlugin() {
+      alert("Replace this button link with your real plugin download URL.");
+    }
+  </script>
+</body>
+</html>
